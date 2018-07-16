@@ -45,10 +45,6 @@ model = lr.fit(train_df)
 # 预测test集合
 predict_df = model.transform(test_df)
 
-
-#predict_and_target = predict_df.rdd.map(lambda row: (float(model.predict(row.features)), row.target))
-#print(predict_and_target.collect())
-
 # 对测试集做predict, 生成(预测分类, 正确分类)
 def build_predict_target(row):
     return (float(row.prediction), float(row.target))
