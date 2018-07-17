@@ -4,12 +4,12 @@ from pyspark.sql import SparkSession
 from sklearn.datasets import load_iris
 import pandas
 from pyspark.ml.classification import LogisticRegression
-from pyspark.ml.feature import  VectorAssembler
-from pyspark.mllib.evaluation import BinaryClassificationMetrics
+from pyspark.ml import Pipeline
+from pyspark2pmml import PMMLBuilder
 from pyspark.ml.feature import RFormula
 
 # 配置spark客户端
-conf = SparkConf().setAppName("lr_spark")
+conf = SparkConf().setAppName("lr_spark").set("spark.jars", "./jpmml-sparkml-executable-1.4.5.jar") # 注意: 这里需要加载jpmml jar
 conf = conf.setMaster("local")
 sc = SparkContext(conf = conf)
 
@@ -28,32 +28,16 @@ sess = SparkSession(sc)
 # 创建spark DataFrame
 raw_df = sess.createDataFrame(merged)
 
-# 提取特征与目标
+# 特征提取
 fomula = RFormula(formula = 'Species ~ .')
-raw_df = fomula.fit(raw_df).transform(raw_df)
-
-# 拆分训练集和测试集
-train_df, test_df = raw_df.randomSplit([0.8, 0.2])
 
 # 创建LR分类器
 lr = LogisticRegression()
 
-# 训练
-train_df.show()
-model = lr.fit(train_df)
+# 流水线: 先提取特征, 再训练模型
+pipeline = Pipeline(stages = [fomula, lr])
+pipeline_model = pipeline.fit(raw_df)
 
-# 预测test集合
-predict_df = model.transform(test_df)
-
-# 对测试集做predict, 生成(预测分类, 正确分类)
-def build_predict_target(row):
-    return (float(row.prediction), float(row.Species))
-
-predict_and_target_rdd = predict_df.rdd.map(build_predict_target)
-
-# 统计模型效果
-metrics = BinaryClassificationMetrics(predict_and_target_rdd)
-print(metrics.areaUnderPR)
-
-# 保存模型到磁盘
-model.write().overwrite().save('./lr.model')
+# 导出PMML
+pmmlBuilder = PMMLBuilder(sc, raw_df, pipeline_model)
+pmmlBuilder.buildFile("lr.pmml")

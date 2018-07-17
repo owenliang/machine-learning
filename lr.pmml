@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PMML xmlns="http://www.dmg.org/PMML-4_3" xmlns:data="http://jpmml.org/jpmml-model/InlineTable" version="4.3">
+	<Header>
+		<Application name="JPMML-SparkML" version="1.4.5"/>
+		<Timestamp>2018-07-17T03:25:17Z</Timestamp>
+	</Header>
+	<DataDictionary>
+		<DataField name="Species" optype="categorical" dataType="integer">
+			<Value value="0"/>
+			<Value value="1"/>
+			<Value value="2"/>
+		</DataField>
+		<DataField name="sepal length (cm)" optype="continuous" dataType="double"/>
+		<DataField name="sepal width (cm)" optype="continuous" dataType="double"/>
+		<DataField name="petal length (cm)" optype="continuous" dataType="double"/>
+		<DataField name="petal width (cm)" optype="continuous" dataType="double"/>
+	</DataDictionary>
+	<RegressionModel functionName="classification" normalizationMethod="softmax">
+		<MiningSchema>
+			<MiningField name="Species" usageType="target"/>
+			<MiningField name="sepal length (cm)"/>
+			<MiningField name="sepal width (cm)"/>
+			<MiningField name="petal length (cm)"/>
+			<MiningField name="petal width (cm)"/>
+		</MiningSchema>
+		<Output>
+			<OutputField name="pmml(prediction)" optype="categorical" dataType="integer" feature="predictedValue"/>
+			<OutputField name="prediction" optype="categorical" dataType="double" feature="transformedValue">
+				<MapValues outputColumn="data:output">
+					<FieldColumnPair field="pmml(prediction)" column="data:input"/>
+					<InlineTable>
+						<row>
+							<data:input>0</data:input>
+							<data:output>0</data:output>
+						</row>
+						<row>
+							<data:input>1</data:input>
+							<data:output>1</data:output>
+						</row>
+						<row>
+							<data:input>2</data:input>
+							<data:output>2</data:output>
+						</row>
+					</InlineTable>
+				</MapValues>
+			</OutputField>
+			<OutputField name="probability(0)" optype="continuous" dataType="double" feature="probability" value="0"/>
+			<OutputField name="probability(1)" optype="continuous" dataType="double" feature="probability" value="1"/>
+			<OutputField name="probability(2)" optype="continuous" dataType="double" feature="probability" value="2"/>
+		</Output>
+		<RegressionTable intercept="2.0589260323395826" targetCategory="0">
+			<NumericPredictor name="sepal length (cm)" coefficient="-9.3215388958028"/>
+			<NumericPredictor name="sepal width (cm)" coefficient="40.62625783146442"/>
+			<NumericPredictor name="petal length (cm)" coefficient="-11.78994187010167"/>
+			<NumericPredictor name="petal width (cm)" coefficient="-26.527030223116284"/>
+		</RegressionTable>
+		<RegressionTable intercept="20.289599797446442" targetCategory="1">
+			<NumericPredictor name="sepal length (cm)" coefficient="5.8933440030500135"/>
+			<NumericPredictor name="sepal width (cm)" coefficient="-16.972682698035506"/>
+			<NumericPredictor name="petal length (cm)" coefficient="1.1802982181289101"/>
+			<NumericPredictor name="petal width (cm)" coefficient="4.120419403699187"/>
+		</RegressionTable>
+		<RegressionTable intercept="-22.348525829786027" targetCategory="2">
+			<NumericPredictor name="sepal length (cm)" coefficient="3.428194892752785"/>
+			<NumericPredictor name="sepal width (cm)" coefficient="-23.653575133428916"/>
+			<NumericPredictor name="petal length (cm)" coefficient="10.60964365197276"/>
+			<NumericPredictor name="petal width (cm)" coefficient="22.406610819417097"/>
+		</RegressionTable>
+	</RegressionModel>
+</PMML>
